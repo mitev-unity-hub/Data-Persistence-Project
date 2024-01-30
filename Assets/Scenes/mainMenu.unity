@@ -292,7 +292,7 @@ MonoBehaviour:
   m_LineType: 0
   m_HideMobileInput: 0
   m_CharacterValidation: 0
-  m_CharacterLimit: 0
+  m_CharacterLimit: 6
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -854,7 +854,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e2221e0a4daae4bbe6fbca3bc79e79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 247048806}
   score: 0
 --- !u!4 &1362788795
 Transform:

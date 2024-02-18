@@ -31,6 +31,7 @@ public class MenuUIHandler : MonoBehaviour
     private void GetUserInput(string input)
     {
         scoreText.text ="Best Score: " + input + ": " + score;
+        MainMenuManager.Instance.PlayerName = input;
     }
 
     public void Exit()

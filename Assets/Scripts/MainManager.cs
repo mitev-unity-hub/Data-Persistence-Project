@@ -6,11 +6,14 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+    public static MainManager Instance;
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
+    private string PlayerName;
 
     public Text ScoreText;
+    public Text ScoreTextTop;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,7 +21,6 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
     // Start is called before the first frame update
     void Start()
     {
@@ -35,6 +37,12 @@ public class MainManager : MonoBehaviour
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
             }
+        }
+
+        if (MainMenuManager.Instance != null)
+        {
+            PlayerName = MainMenuManager.Instance.PlayerName;
+            ScoreText.text = $"{PlayerName} Score :";
         }
     }
 
@@ -57,7 +65,8 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+             //   RestartScene();
+             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
     }
@@ -65,12 +74,32 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        if (MainMenuManager.Instance != null)
+        {
+            ScoreText.text = $"{PlayerName} Score : {m_Points}";
+        } else
+        {
+            ScoreText.text = $"Score : {m_Points}";
+        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (MainMenuManager.Instance != null)
+        {
+            ScoreTextTop.text = $"{PlayerName} Score : {m_Points}";
+        } else
+        {
+            ScoreTextTop.text = $"Score : {m_Points}";
+        }
+    }
+
+    public void RestartScene() 
+    {
+        Scene currentScene = SceneManager.GetActiveScene();
+
+        SceneManager.LoadScene(currentScene.name);
     }
 }

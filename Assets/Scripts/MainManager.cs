@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -10,23 +11,29 @@ public class MainManager : MonoBehaviour
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
-    private string PlayerName;
-
     public Text ScoreText;
     public Text ScoreTextTop;
     public GameObject GameOverText;
-    
+
+    private int prevScore;
+    private string prevPlayerName;
+
+    private string PlayerName;
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
+
+    private void Awake()
+    {
+        LoadPlayerName();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
         int[] pointCountArray = new [] {1,1,2,2,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
@@ -43,6 +50,15 @@ public class MainManager : MonoBehaviour
         {
             PlayerName = MainMenuManager.Instance.PlayerName;
             ScoreText.text = $"{PlayerName} Score :";
+
+            if (!string.IsNullOrEmpty(prevPlayerName))
+            {
+                ScoreTextTop.text = $"{prevPlayerName} Score : {prevScore}";
+            }
+            else
+            {
+                ScoreTextTop.text = $"{PlayerName} Score : {m_Points}";
+            }
         }
     }
 
@@ -89,10 +105,18 @@ public class MainManager : MonoBehaviour
         GameOverText.SetActive(true);
         if (MainMenuManager.Instance != null)
         {
-            ScoreTextTop.text = $"{PlayerName} Score : {m_Points}";
-        } else
-        {
-            ScoreTextTop.text = $"Score : {m_Points}";
+            if (!string.IsNullOrEmpty(prevPlayerName))
+            {
+                ScoreTextTop.text = $"{prevPlayerName} Score : {prevScore}";
+            } else
+            {
+                ScoreTextTop.text = $"{PlayerName} Score : {m_Points}";
+            }
+    
+            if (m_Points > prevScore)
+            {
+                SavePlayerName();
+            }
         }
     }
 
@@ -101,5 +125,35 @@ public class MainManager : MonoBehaviour
         Scene currentScene = SceneManager.GetActiveScene();
 
         SceneManager.LoadScene(currentScene.name);
+    }
+
+    [System.Serializable]
+    class SaveData
+    {
+        public string playerName;
+        public int points;
+    }
+
+    public void SavePlayerName()
+    {
+        SaveData data = new SaveData();
+        data.playerName = PlayerName;
+        data.points = m_Points;
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+
+    public void LoadPlayerName()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            prevPlayerName = data.playerName;
+            prevScore = data.points;
+        }
     }
 }
